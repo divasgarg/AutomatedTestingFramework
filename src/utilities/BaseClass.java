@@ -1,38 +1,41 @@
 package utilities;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;  // For Chrome
-import org.openqa.selenium.safari.SafariDriver;  // For Safari
-import org.openqa.selenium.firefox.FirefoxDriver;  // For Firefox
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.WebDriverException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import java.time.Duration;
 
 public class BaseClass {
+
     protected WebDriver driver;
 
     @BeforeClass
     public void setup() {
-        String browser = System.getProperty("browser", "safari");  // Default to Chrome if no browser specified
+        String browser = System.getProperty("browser", "chrome");  // Default to chrome if not specified
 
         switch (browser.toLowerCase()) {
             case "chrome":
-                // Set up ChromeDriver
-                System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");  // Optional: Provide path to chromedriver if needed
+                WebDriverManager.chromedriver().setup();  // Auto-download ChromeDriver
                 driver = new ChromeDriver();
                 break;
 
+            case "firefox":
+                WebDriverManager.firefoxdriver().setup();  // Auto-download GeckoDriver
+                driver = new FirefoxDriver();
+                break;
+
             case "safari":
-                // SafariDriver doesn't need a path, it's included in macOS by default
-                driver = new SafariDriver();
+                driver = new SafariDriver();  // Safari does not require a separate WebDriver on macOS
                 break;
 
             default:
                 throw new WebDriverException("Unsupported browser: " + browser);
         }
 
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().window().maximize();
     }
 
